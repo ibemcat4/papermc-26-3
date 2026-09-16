@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Minecraft</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f4f9; color: #333; overflow-x: hidden; }
+        header { background: #2e7d32; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 1.5rem; }
+        nav button { background: none; border: none; color: white; font-size: 1rem; font-weight: bold; cursor: pointer; margin-left: 15px; }
+        nav button:hover { text-decoration: underline; }
+        .tab-content { display: none; }
+        .active-tab { display: block; }
+        .hero { text-align: center; padding: 3rem 1rem; background: linear-gradient(135deg, #a5d6a7, #e8f5e9); }
+        .hero h2 { font-size: 2.5rem; margin-bottom: 10px; }
+        .cta-buttons { margin-top: 20px; }
+        .btn { display: inline-block; padding: 10px 20px; margin: 5px; border-radius: 4px; font-weight: bold; cursor: pointer; border: none; font-size: 1rem; text-decoration: none; }
+        .btn-primary { background: #2e7d32; color: white; }
+        .btn-primary:hover { background: #1b5e20; }
+        .btn-secondary { background: white; color: #2e7d32; border: 2px solid #2e7d32; }
+        .btn-sample { background: #81c784; color: white; padding: 5px 10px; font-size: 0.85rem; margin-top: 10px; }
+        .btn-download { background: #0288d1; color: white; padding: 5px 10px; font-size: 0.85rem; margin-top: 10px; display: none; }
+        .features { display: flex; flex-wrap: wrap; justify-content: space-around; padding: 2rem; max-width: 1200px; margin: 0 auto; }
+        .feature-card { background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin: 1rem; padding: 1.5rem; flex: 1 1 300px; text-align: center; }
+        .feature-card .icon { font-size: 2rem; margin-bottom: 10px; }
+        .import-box { margin-top: 20px; padding: 15px; border: 2px dashed #2e7d32; border-radius: 6px; background: #f1f8e9; }
+        .status-msg { margin-top: 8px; font-size: 0.9rem; color: #555; font-style: italic; }
+        .menu-page { max-width: 900px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .menu-page h2 { color: #2e7d32; border-bottom: 2px solid #e8f5e9; padding-bottom: 10px; }
+        .doc-section { margin-bottom: 25px; line-height: 1.6; }
+        .doc-list { padding-left: 20px; margin: 10px 0; list-style-type: square; }
+        .doc-list li { margin-bottom: 8px; }
+        footer { text-align: center; padding: 1.5rem; background: #333; color: white; font-size: 0.9rem; margin-top: 4rem; }
+
+        /* Decoupled Native Execution Window Layer */
+        #shadow-canvas { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 9999; }
+        
+        /* Integrated Custom Loading Overlay screen */
+        #loading-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #14110f url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="8" height="8" fill="%232b2622"/><rect x="8" y="8" width="8" height="8" fill="%232b2622"/><rect x="8" width="8" height="8" fill="%2336302b"/><rect y="8" width="8" height="8" fill="%2336302b"/></svg>') repeat; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; color: #fff; font-family: monospace; }
+        .load-title { font-size: 2rem; text-shadow: 2px 2px #000; letter-spacing: 2px; margin-bottom: 20px; }
+        .progress-box { width: 300px; height: 20px; border: 3px solid #fff; background: #000; padding: 2px; box-shadow: 3px 3px 0px #000; }
+        .progress-bar { width: 0%; height: 100%; background: #fff; }
+        .load-sub { font-size: 1.2rem; margin-top: 20px; text-shadow: 1px 1px #000; }
+        .exit-hint { position: absolute; bottom: 20px; color: #aaa; font-size: 0.85rem; text-shadow: 1px 1px #000; text-align: center; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <div id="app-wrapper">
+        <header>
+            <h1>Paper Minecraft v26.3</h1>
+            <nav>
+                <button onclick="switchTab('launcher-tab')">Home</button>
+                <button onclick="switchTab('features-tab')">Features</button>
+                <button onclick="switchTab('about-tab')">About</button>
+            </nav>
+        </header>
+
+        <!-- MAIN LAUNCHER MENU -->
+        <div id="launcher-tab" class="tab-content active-tab">
+            <section class="hero">
+                <h2>Paper Minecraft</h2>
+                <p>A little paper-built Minecraft-style world on the web. Explore, build, and make something awesome.</p>
+                <div class="cta-buttons">
+                    <button id="play-btn" class="btn btn-primary">▶ PLAY</button>
+                    <button onclick="switchTab('features-tab')" class="btn btn-secondary">LEARN MORE</button>
+                </div>
+            </section>
+
+            <section class="features">
+                <div class="feature-card">
+                    <div class="icon">⛏</div>
+                    <h3>Build</h3>
+                    <p>Create 2D Minecraft Worlds, play with 910 blocks, and have fun!</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🌳</div>
+                    <h3>Explore</h3>
+                    <p>Discover forests, caves, and whatever else eventually gets added to the world.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🧱</div>
+                    <h3>Create</h3>
+                    <p>Paper Minecraft is your place to experiment with your own Minecraft-inspired ideas.</p>
+                    <div class="import-box">
+                        <div id="status" class="status-msg">Initializing database...</div>
+                        <button id="load-sample" class="btn btn-sample">Load Sample World</button>
+                        <button id="download-btn" class="btn btn-download">📥 Download File</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- FEATURES MENU TAB -->
+        <div id="features-tab" class="tab-content">
+            <div class="menu-page">
+                <h2>Update Guide: Wilderness Bound</h2>
+                <div class="doc-section">
+                    <p><strong>The Game is releasing Wilderness Bound as of September 15th, so let's go over How to play this new update!</strong></p>
+                    <p>This layout introduction establishes safe rendering for custom local content streams across chunk limits. When moving between structural block partitions, data sequences automatically stream straight out of browser memory storage units without freezing active rendering sequences.</p>
+                </div>
+
+                <div id="controls-matrix" class="doc-section">
+                    <h3>Core Controls Matrix</h3>
+                    <p><strong>Movement & Physics:</strong></p>
+                    <ul class="doc-list">
+                        <li>WASD & Space Keys: Handles player movement tracking and block physics jump loops.</li>
+                        <li>Left Click Action: Instantly routes coordinates to place or break focused blocks.</li>
+                    </ul>
+                    <p><strong>Inventories & Screens:</strong></p>
+                    <ul class="doc-list">
+                        <li>1 through 9 Keys: Cycles hotbar selection slot registers in real time.</li>
+                        <li>E Key Toggle: Displays standard player inventory overlay screens.</li>
+                        <li>K Key Toggle: Unlocks the full creative item grid array menu interface.</li>
+                        <li>Z Key Trigger: Dismisses the active UI overlay window or sub-menu layer.</li>
+                    </ul>
+                    <p><strong>Actions & Interactions:</strong></p>
+                    <ul class="doc-list">
+                        <li>Shift Key Hold: Consumes the currently equipped hotbar element data block.</li>
+                        <li>C Key Bind: Default tile action handler used to sync structures and portals.</li>
+                        <li>X Key Bind: Special functional action handler targeting alternative map transformations.</li>
+                    </ul>
+                    <p><strong>System & UI Safety:</strong></p>
+                    <ul class="doc-list">
+                        <li>T Key Action: Launches the administrative developer text input engine overlay.</li>
+                        <li>R Key Toggle: Draws or clears global telemetry debug text from the game loop views.</li>
+                        <li>O Key Action: Freezes framework intervals to display local pause settings panels.</li>
+                        <li>` (Backtick) Prompt: Triggers structural save protection locks, prompting safe exits without corrupting backend map files during volatile chunk shifts.</li>
+                    </ul>
+                </div>
+                <button onclick="switchTab('launcher-tab')" class="btn btn-primary">Return Home</button>
+            </div>
+        </div>
+
+        <!-- ABOUT MENU TAB -->
+        <div id="about-tab" class="tab-content">
+            <div class="menu-page">
+                <h2>About Paper Minecraft</h2>
+                <p>Play button may be unstable, you can download the HTML. Smelting isn't working right now, sorry :( Any update names or version numbers may be identical to Minecraft's official names. Report bugs (yes, there will be bugs)</p>
+                <button onclick="switchTab('launcher-tab')" class="btn btn-primary">Return Home</button>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>Paper Minecraft</strong> - A fan-made project. Not affiliated with Mojang or Microsoft.</p>
+        </footer>
+    </div>
+
+    <div id="shadow-canvas">
+        <div id="loading-screen">
+            <div class="load-title">Loading project info...</div>
+            <div class="progress-box">
+                <div id="load-progress" class="progress-bar"></div>
+            </div>
+            <div class="load-sub">Please wait</div>
+            <div class="exit-hint">Press your ` (Backtick) key to safely exit game view back to launcher dashboard</div>
+        </div>
+    </div>
+
+    <script>
+        let sampleText = "<html><body style='background:#111;color:#fff;text-align:center;padding-top:100px;font-family:sans-serif;'><h1>🌳 Memory Channel Connected Successfully 🌳</h1><p>Shadow Window mounted. Press backtick (`) to close.</p></body></html>";
+        let activeTarget = null, isSample = false, isVerified = false, savedFilePointer = null, currentObjectUrl = null, embeddedWindowRef = null;
+
+        const playBtn = document.getElementById('play-btn');
+        const loadSampleBtn = document.getElementById('load-sample');
+        const downloadBtn = document.getElementById('download-btn');
+        const statusMsg = document.getElementById('status');
+        
+        const shadowCanvas = document.getElementById('shadow-canvas');
+        const loadingScreen = document.getElementById('loading-screen');
+        const loadProgress = document.getElementById('load-progress');
+
+        function switchTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active-tab'));
+            document.getElementById(tabId).classList.add('active-tab');
+            window.scrollTo(0, 0);
+        }
+
+        let db = null;
+        const request = indexedDB.open("PaperMinecraftDB", 1);
+        request.onupgradeneeded = (e) => { e.target.result.createObjectStore("worlds"); };
+        request.onsuccess = (e) => { db = e.target.result; checkSavedWorld(); };
+        request.onerror = () => { statusMsg.textContent = "Database storage error."; };
+
+        function checkSavedWorld() {
+            if (!db) return;
+            const req = db.transaction(["worlds"], "readonly").objectStore("worlds").get("activeWorld");
+            req.onsuccess = () => {
+                if (req.result) {
+                    savedFilePointer = req.result; activeTarget = savedFilePointer; isVerified = true; isSample = false;
+                    downloadBtn.style.display = "inline-block";
+                    statusMsg.textContent = `Auto-Recovered: "${savedFilePointer.name}" (${(savedFilePointer.size / 1024 / 1024).toFixed(1)} MB) loaded!`;
+                    statusMsg.style.color = "#2e7d32";
+                } else {
+                    statusMsg.textContent = "Launcher standby. Storage channels aligned.";
+                }
+            };
+        }
+
+        loadSampleBtn.addEventListener('click', () => {
+            isSample = true;
+            if (savedFilePointer) {
+                activeTarget = savedFilePointer; isVerified = true;
+                statusMsg.textContent = `Loaded: Sample World upgraded to saved file!`;
+            } else {
+                activeTarget = sampleText; isVerified = true;
+                statusMsg.textContent = "Loaded: Using temporary placeholder sample text.";
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!savedFilePointer) return;
+            const dlLink = document.createElement('a');
+            dlLink.href = URL.createObjectURL(savedFilePointer);
+            dlLink.download = savedFilePointer.name;
+            document.body.appendChild(dlLink);
+            dlLink.click();
+            document.body.removeChild(dlLink);
+            URL.revokeObjectURL(dlLink.href);
+        });
+
+        playBtn.addEventListener('click', () => {
+            if (!activeTarget || !isVerified) { alert("Please click 'Load Sample World' to initialize database slots first!"); return; }
+            
+            if (currentObjectUrl) { URL.revokeObjectURL(currentObjectUrl); }
+
+            currentObjectUrl = isSample && typeof activeTarget === "string" ? 
+                URL.createObjectURL(new Blob([activeTarget], { type: 'text/html' })) : URL.createObjectURL(activeTarget);
+            
+            shadowCanvas.style.display = "block";
+            loadingScreen.style.display = "flex";
+            loadProgress.style.width = "0%";
+            
+            let currentPct = 0;
+            const progressInterval = setInterval(() => {
+                currentPct += Math.floor(Math.random() * 20) + 10;
+                if (currentPct >= 100) {
+                    currentPct = 100;
+                    clearInterval(progressInterval);
+                    setTimeout(() => { loadingScreen.style.display = "none"; }, 250);
+                }
+                loadProgress.style.width = currentPct + "%";
+            }, 50);
+
+            if (embeddedWindowRef) { try { embeddedWindowRef.close(); } catch(e){} }
+            embeddedWindowRef = window.open(currentObjectUrl, '_blank', 'fullscreen=yes,scrollbars=no,menubar=no,toolbar=no,location=no,status=no');
+            
+            if (!embeddedWindowRef) {
+                alert("Popup Blocked! Please click allow popups for this launcher tab to authorize the decoupled memory renderer lane.");
+                shadowCanvas.style.display = "none";
+                clearInterval(progressInterval);
+            }
+        });
+
+        window.addEventListener('keydown', (event) => {
+            if (event.key === "`" && shadowCanvas.style.display === "block") {
+                shadowCanvas.style.display = "none";
+                if (embeddedWindowRef) { try { embeddedWindowRef.close(); } catch(e){} embeddedWindowRef = null; }
+                if (currentObjectUrl) { URL.revokeObjectURL(currentObjectUrl); currentObjectUrl = null; }
+                statusMsg.textContent = "Exited game loop view. Local memory allocations cleaned successfully.";
+            }
+        });
+
+        setInterval(() => {
+            if (shadowCanvas.style.display === "block" && embeddedWindowRef && embeddedWindowRef.closed) {
+                shadowCanvas.style.display = "none";
+                if (currentObjectUrl) { URL.revokeObjectURL(currentObjectUrl); currentObjectUrl = null; }
+                statusMsg.textContent = "Game window instance terminated. Core launcher normalized.";
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
+<!-- PAPER MINECRAFT BUG REPORT -->
+
+<style>
+#bug-report-tab {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 400px;
+    padding: 30px;
+}
+
+#bug-report-tab .bug-box {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#bug-report-tab label {
+    display: block;
+    margin-top: 18px;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+#bug-report-tab input,
+#bug-report-tab textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 2px solid #555;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 15px;
+}
+
+#bug-report-tab textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+#bug-report-tab button {
+    padding: 10px 18px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#bug-report-status {
+    margin-top: 15px;
+    font-weight: bold;
+}
+</style>
+
+<script>
+(function () {
+
+    function setupBugReport() {
+
+        /* Don't create it twice */
+        if (document.getElementById("bug-report-tab")) return;
+
+        /* =================================================
+           CREATE BUG REPORT TAB
+           ================================================= */
+
+        const bugTab = document.createElement("div");
+
+        bugTab.id = "bug-report-tab";
+        bugTab.className = "tab-content";
+
+        bugTab.innerHTML = `
+            <div class="bug-box">
+
+                <h2>🐛 Bug Report</h2>
+
+                <p>
+                    Found a bug in Paper Minecraft?
+                    Tell us what happened!
+                </p>
+
+                <label>Bug title</label>
+
+                <input
+                    id="pm-bug-title"
+                    type="text"
+                    placeholder="Example: Game freezes when opening inventory"
+                >
+
+                <label>What happened?</label>
+
+                <textarea
+                    id="pm-bug-description"
+                    placeholder="Describe the bug..."
+                ></textarea>
+
+                <label>Steps to reproduce</label>
+
+                <textarea
+                    id="pm-bug-steps"
+                    placeholder="1. Open the game&#10;2. Open inventory&#10;3. ..."
+                ></textarea>
+
+                <br>
+
+                <button
+                    id="pm-save-bug"
+                    class="btn btn-primary">
+                    💾 Save Report
+                </button>
+
+                <button
+                    id="pm-copy-bug"
+                    class="btn btn-secondary">
+                    📋 Copy Data
+                </button>
+
+                <button
+                    onclick="switchTab('about-tab')"
+                    class="btn">
+                    ← Back to About
+                </button>
+
+                <div id="bug-report-status"></div>
+
+            </div>
+        `;
+
+        const wrapper = document.getElementById("app-wrapper");
+
+        if (wrapper) {
+
+            const footer = wrapper.querySelector("footer");
+
+            if (footer) {
+                wrapper.insertBefore(bugTab, footer);
+            } else {
+                wrapper.appendChild(bugTab);
+            }
+
+        } else {
+            document.body.appendChild(bugTab);
+        }
+
+
+        /* =================================================
+           ADD BUTTON INSIDE ABOUT TAB
+           ================================================= */
+
+        const aboutTab =
+            document.getElementById("about-tab");
+
+        if (aboutTab) {
+
+            const bugButton =
+                document.createElement("button");
+
+            bugButton.id =
+                "open-bug-report-button";
+
+            bugButton.className =
+                "btn btn-secondary";
+
+            bugButton.textContent =
+                "🐛 Report a Bug";
+
+            bugButton.onclick = function () {
+                switchTab("bug-report-tab");
+            };
+
+            aboutTab
+                .querySelector(".menu-page")
+                .appendChild(bugButton);
+        }
+
+
+        /* =================================================
+           BUG REPORT DATA
+           ================================================= */
+
+        window.paperMinecraftBugReport = {
+            title: "",
+            description: "",
+            steps: "",
+            browser: navigator.userAgent,
+            platform: navigator.platform,
+            date: "",
+            page: location.href
+        };
+
+
+        /* =================================================
+           SAVE
+           ================================================= */
+
+        document
+            .getElementById("pm-save-bug")
+            .addEventListener("click", function () {
+
+                const report =
+                    window.paperMinecraftBugReport;
+
+                report.title =
+                    document.getElementById(
+                        "pm-bug-title"
+                    ).value;
+
+                report.description =
+                    document.getElementById(
+                        "pm-bug-description"
+                    ).value;
+
+                report.steps =
+                    document.getElementById(
+                        "pm-bug-steps"
+                    ).value;
+
+                report.browser =
+                    navigator.userAgent;
+
+                report.platform =
+                    navigator.platform;
+
+                report.date =
+                    new Date().toISOString();
+
+                report.page =
+                    location.href;
+
+                localStorage.setItem(
+                    "PaperMinecraftBugReport",
+                    JSON.stringify(report)
+                );
+
+                document.getElementById(
+                    "bug-report-status"
+                ).textContent =
+                    "✅ Bug report saved!";
+            });
+
+
+        /* =================================================
+           COPY
+           ================================================= */
+
+        document
+            .getElementById("pm-copy-bug")
+            .addEventListener("click", async function () {
+
+                const report =
+                    window.paperMinecraftBugReport;
+
+                report.title =
+                    document.getElementById(
+                        "pm-bug-title"
+                    ).value;
+
+                report.description =
+                    document.getElementById(
+                        "pm-bug-description"
+                    ).value;
+
+                report.steps =
+                    document.getElementById(
+                        "pm-bug-steps"
+                    ).value;
+
+                report.date =
+                    new Date().toISOString();
+
+                try {
+
+                    await navigator.clipboard.writeText(
+                        JSON.stringify(report, null, 2)
+                    );
+
+                    document.getElementById(
+                        "bug-report-status"
+                    ).textContent =
+                        "📋 Bug data copied!";
+
+                } catch (error) {
+
+                    document.getElementById(
+                        "bug-report-status"
+                    ).textContent =
+                        "⚠️ Copy failed.";
+
+                }
+
+            });
+
+    }
+
+
+    if (document.readyState === "loading") {
+        document.addEventListener(
+            "DOMContentLoaded",
+            setupBugReport
+        );
+    } else {
+        setupBugReport();
+    }
+
+})();
+</script>
